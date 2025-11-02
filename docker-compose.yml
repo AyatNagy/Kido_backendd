@@ -1,0 +1,8 @@
+services:
+  kido-backend:
+    build:
+      context: .
+    ports:
+      - "4005:3000"
+    env_file: .env
+    

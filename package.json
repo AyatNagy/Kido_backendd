@@ -3,17 +3,18 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "dotenv": "^17.2.3",
-    "dotenv-cli": "^11.0.0",
-    "prisma": "^6.18.0"
   },
   "dependencies": {
+    "dotenv": "^17.2.3",
+    "dotenv-cli": "^11.0.0",
+    "prisma": "^6.18.0",
     "@prisma/client": "^6.18.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
