@@ -1,4 +1,5 @@
 const prisma = require('../prismaClient');
+const bcrypt = require('bcryptjs');
 
 
 //get all users
@@ -16,7 +17,7 @@ try{
     res.status(500).send({
         success:false,
         message:"Error in getting users",
-        error:error.mesaage
+        error:error.message
     });
 }
 
@@ -31,7 +32,7 @@ const getUserById = async (req,res)=>{
         );
 
         if(!user){
-            res.status(404).send({
+            return res.status(404).send({
                 success:false,
                 message:"No user found"
             })
@@ -46,7 +47,7 @@ const getUserById = async (req,res)=>{
         res.status(500).send({
             success:false,
             message:"Error in get user by id API",
-            error:error.mesaage
+            error:error.message
         })
     }
 
@@ -58,13 +59,17 @@ const createUser = async (req,res)=>{
         const {username,name,email,password,phone}=req.body;
 
         if(!username || !name || !email || !password){
-            res.status(400).json({
+            return res.status(400).json({
                 success:false,
                 message:"Missing required fields"
             })
         }
+        
+        // Hash password before storing
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
         const user = await prisma.user.create({
-            data:{username,name,email,password,phone}
+            data:{username,name,email,password:hashedPassword,phone}
         })
         res.status(201).json({
             success:true,
@@ -75,7 +80,7 @@ const createUser = async (req,res)=>{
     }catch(error){
         res.status(500).send({
             success:false,
-            mesaage:"Error in create user API",
+            message:"Error in create user API",
             error:error.message
         })
     }
@@ -87,9 +92,17 @@ const updateUser = async (req,res)=>{
         const id = + req.params.userId;
         const {username,name,email,password,phone} = req.body;
 
+        // Prepare update data
+        const updateData = {username,name,email,phone};
+        
+        // Only hash and update password if provided
+        if(password){
+            updateData.password = await bcrypt.hash(password, 10);
+        }
+
         const user = await prisma.user.update({
             where:{id},
-            data: {username,name,email,password,phone}
+            data: updateData
         });
 
         res.status(200).json({
@@ -113,7 +126,7 @@ const deleteUser = async (req,res)=>{
     try{
         const id = +req.params.userId;
         if(!id){
-          return  res.staus(400).json({
+          return  res.status(400).json({
                 success:false,
                 message:"No Id provided",
             })

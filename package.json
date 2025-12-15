@@ -37,6 +37,7 @@
     "jsonwebtoken": "^9.0.2",
     "minimist": "^1.2.8",
     "node-fetch-native": "^1.6.7",
+    "nodemailer": "^7.0.11",
     "nypm": "^0.6.2",
     "ohash": "^2.0.11",
     "path-key": "^3.1.1",

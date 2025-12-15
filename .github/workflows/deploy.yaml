@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch: # Allows manual triggering
 
 jobs:
   deploy:
@@ -15,12 +16,26 @@ jobs:
 
       - name: Create .env File
         run: |
-            cat << 'EOF' > .env
-            ${{ secrets.APP_ENV }}
-            EOF
+          cat << 'EOF' > .env
+          ${{ secrets.APP_ENV }}
+          EOF
+          # Verify .env was created
+          if [ -f .env ]; then
+            echo "✅ .env file created successfully"
+          else
+            echo "❌ Failed to create .env file"
+            exit 1
+          fi
 
       - name: Stop Current Containers
-        run: docker-compose down
+        run: docker-compose down || true
 
       - name: Rebuild and Restart Containers
         run: docker-compose up -d --build
+
+      - name: Verify Deployment
+        run: |
+          echo "Waiting for containers to start..."
+          sleep 10
+          docker-compose ps
+          echo "✅ Deployment completed"
