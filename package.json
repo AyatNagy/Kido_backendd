@@ -10,7 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^6.18.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "c12": "^3.1.0",
@@ -44,7 +43,6 @@
     "pathe": "^2.0.3",
     "perfect-debounce": "^1.0.0",
     "pkg-types": "^2.3.0",
-    "prisma": "^6.18.0",
     "pure-rand": "^6.1.0",
     "rc9": "^2.1.2",
     "readdirp": "^4.1.2",
@@ -53,5 +51,9 @@
     "tinyexec": "^1.0.1",
     "which": "^2.0.2"
   },
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "@prisma/client": "^6.19.1",
+    "prisma": "^6.19.1"
+  }
 }
