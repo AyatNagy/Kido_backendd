@@ -2,20 +2,23 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const cors = require("cors");
+
 app.use(cors());
 app.use(express.json());
 
-const userRoutes = require('./routes/userRoutes');
-const authRoutes = require('./routes/authRoutes');
+const authRoutes      = require('./routes/authRoutes');
+const userRoutes      = require('./routes/userRoutes');
 const childAuthRoutes = require('./routes/childAuthRoutes');
-const authenticate = require('./middlewares/authmiddleware');
+const assessmentRoutes = require('./routes/assessmentRoutes');
+const progressRoutes  = require('./routes/progressRoutes');
+
+app.use('/api/auth',       authRoutes);
+app.use('/api/users',      userRoutes);
+app.use('/api/child',      childAuthRoutes);
+app.use('/api/assessment', assessmentRoutes);
+app.use('/api/progress',   progressRoutes);
+
 const PORT = process.env.PORT || 3000;
-
-app.use('/api/auth', authRoutes);
-app.use('/api/users', authenticate, userRoutes);
-app.use('/api/child', childAuthRoutes);
-
-
-app.listen(PORT,()=>{
-    console.log("Server is running on port ",PORT)
-})
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});

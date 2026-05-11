@@ -9,7 +9,6 @@ const authenticate = (req,res,next)=>{
         return res.status(401).json({
              message: 'Access denied. No token provided.' });
     }
-
     try {
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded; // attach user info to request

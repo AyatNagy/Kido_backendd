@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,27 +8,89 @@ datasource db {
 }
 
 model User {
-  id         Int        @id @default(autoincrement())
-  username   String     @unique @db.VarChar(100)
-  password   String     @db.VarChar(255)
-  name       String     @db.VarChar(100)
-  email      String     @unique @db.VarChar(100)
-  phone      String?    @db.VarChar(20)
-  createdAt  DateTime   @default(now()) @map("created_at") @db.Timestamp(0)
-  resetToken        String?
-  resetTokenExpiry  DateTime?
-  isVerified         Boolean    @default(false) @map("is_verified") 
-  userRoles  UserRole[]
-  children   Child[] 
+  id               Int       @id @default(autoincrement())
+  username         String    @unique @db.VarChar(100)
+  password         String    @db.VarChar(255)
+  name             String    @db.VarChar(100)
+  email            String    @unique @db.VarChar(100)
+  phone            String?   @db.VarChar(20)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  isVerified       Boolean   @default(false) @map("is_verified")
+
+  userRoles UserRole[]
+  children  Child[]
 
   @@map("users")
 }
 
+model Child {
+  id           Int          @id @default(autoincrement())
+  motherId     Int          @map("mother_id")
+  username     String       @unique @db.VarChar(100)
+  password     String       @db.VarChar(255)
+  name         String       @db.VarChar(100)
+  dateOfBirth  DateTime?    @map("date_of_birth") @db.Date
+  createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamp(0)
+  allowedLevel Int          @default(1)
+  mother       User         @relation(fields: [motherId], references: [id], onDelete: Cascade)
+  progress     Progress[]
+  assessments  Assessment[]
+
+  @@map("children")
+}
+
+model Level {
+  id          Int        @id @default(autoincrement())
+  levelNumber Int        @unique @map("level_number") // ← أضيفي السطر ده
+  name        String     @db.VarChar(50)
+  categories  Category[]
+
+  @@map("levels")
+}
+
+model Category {
+  id           Int     @id @default(autoincrement())
+  name         String  @db.VarChar(100)
+  levelId      Int     @map("level_id")
+  totalLessons Int     @default(0) @map("total_lessons")
+
+  level   Level    @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  @@map("categories")
+}
+
+model Lesson {
+  id         Int        @id @default(autoincrement())
+  categoryId Int        @map("category_id")
+  title      String     @db.VarChar(100)
+  content    String?    @db.Text
+  category   Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  progress   Progress[]
+
+  @@map("lessons")
+}
+
+model Progress {
+  id          Int      @id @default(autoincrement())
+  childId     Int      @map("child_id")
+  lessonId    Int      @map("lesson_id")
+  isCompleted Boolean  @default(false) @map("is_completed")
+  completedAt DateTime @default(now()) @updatedAt @map("completed_at")
+
+  child  Child  @relation(fields: [childId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([childId, lessonId])
+  @@map("progress")
+}
+
 model Role {
   roleId          Int        @id @default(autoincrement()) @map("role_id")
-  roleName        String     @unique @db.VarChar(50) @map("role_name")
-  roleDescription String?    @db.VarChar(255) @map("role_description")
-
+  roleName        String     @unique @map("role_name") @db.VarChar(50)
+  roleDescription String?    @map("role_description") @db.VarChar(255)
   userRoles       UserRole[]
 
   @@map("roles")
@@ -51,120 +107,14 @@ model UserRole {
   @@map("user_roles")
 }
 
-model Course {
-  id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(100)
-  description String?   @db.Text
-  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
-
-  lessons     Lesson[]
-  exams       Exam[]
-  childCourses ChildCourse[]
-  progress    Progress[]
-
-  @@map("courses")
-}
-
-model Lesson {
-  id          Int         @id @default(autoincrement())
-  courseId    Int         @map("course_id")
-  title       String      @db.VarChar(100)
-  content     String?     @db.Text
-  orderNumber Int         @map("order_number")
-  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamp(0)
-
-  course      Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  assignments Assignment[]
-
-  @@map("lessons")
-}
-
-model Assignment {
-  id          Int       @id @default(autoincrement())
-  lessonId    Int       @map("lesson_id")
-  title       String    @db.VarChar(100)
-  description String?   @db.Text
-  dueDate     DateTime? @map("due_date") @db.Date
-  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
-
-  lesson      Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  progress    Progress[]
-
-  @@map("assignments")
-}
-
-model Exam {
-  id            Int       @id @default(autoincrement())
-  courseId      Int       @map("course_id")
-  title         String    @db.VarChar(100)
-  description   String?   @db.Text
-  scheduledDate DateTime? @map("scheduled_date") @db.Date
-  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
-
-  course        Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  childExams    ChildExam[]
-  progress      Progress[]
-
-  @@map("exams")
-}
-
-model Child {
-  id          Int        @id @default(autoincrement())
-  motherId    Int        @map("mother_id")
-  username    String     @unique @db.VarChar(100)
-  password    String     @db.VarChar(255)
-  name        String     @db.VarChar(100)
-  dateOfBirth DateTime?  @map("date_of_birth") @db.Date
-  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamp(0)
-
-  mother      User       @relation(fields: [motherId], references: [id], onDelete: Cascade)
-  childCourses ChildCourse[]
-  childExams  ChildExam[]
-  progress    Progress[]
-
-  @@map("children")
-}
-
-model ChildCourse {
-  childId    Int      @map("child_id")
-  courseId   Int      @map("course_id")
-  enrolledAt DateTime @default(now()) @map("enrolled_at") @db.Timestamp(0)
-
-  child  Child  @relation(fields: [childId], references: [id], onDelete: Cascade)
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@id([childId, courseId])
-  @@map("child_courses")
-}
-
-model ChildExam {
-  id       Int       @id @default(autoincrement())
-  childId  Int       @map("child_id")
-  examId   Int       @map("exam_id")
-  takenAt  DateTime  @default(now()) @map("taken_at") @db.Timestamp(0)
-  score    Float?
+model Assessment {
+  id        Int      @id @default(autoincrement())
+  childId   Int      @map("child_id")
+  score     Int
+  level     Int
+  createdAt DateTime @default(now()) @map("created_at")
 
   child Child @relation(fields: [childId], references: [id], onDelete: Cascade)
-  exam  Exam  @relation(fields: [examId], references: [id], onDelete: Cascade)
 
-  @@map("child_exams")
-}
-
-model Progress {
-  id                 Int       @id @default(autoincrement())
-  childId            Int       @map("child_id")
-  courseId           Int       @map("course_id")
-  assignmentId       Int?      @map("assignment_id")
-  examId             Int?      @map("exam_id")
-  grade              String?   @db.VarChar(5)
-  assignmentCompleted Boolean   @default(false) @map("assignment_completed")
-  examScore          Float?    @map("exam_score")
-  updatedAt          DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
-
-  child      Child       @relation(fields: [childId], references: [id], onDelete: Cascade)
-  course     Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  assignment Assignment? @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
-  exam       Exam?       @relation(fields: [examId], references: [id], onDelete: SetNull)
-
-  @@map("progress")
+  @@map("assessments")
 }
