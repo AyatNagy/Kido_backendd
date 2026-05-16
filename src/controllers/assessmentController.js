@@ -1,16 +1,23 @@
 const prisma = require('../prismaClient');
 
-// Minimum score required to unlock the next level
 const PASS_SCORE = 70;
 
 const submitAssessment = async (req, res) => {
   try {
-   const childId = req.user.id; // من الـ token
-const { score, level } = req.body;
-    if (!childId || score === undefined || !level) {
+     const childId = req.body.childId ?? req.user.id;
+    const { score, level } = req.body;
+
+    if (!childId) {
       return res.status(400).json({
         success: false,
-        message: 'Missing required fields: childId, score, and level are required',
+        message: 'childId is required',
+      });
+    }
+
+    if (score === undefined || !level) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields: score and level are required',
       });
     }
 
@@ -21,25 +28,21 @@ const { score, level } = req.body;
       });
     }
 
-    // Verify child exists
-    const child = await prisma.child.findUnique({ where: { id: childId } });
+    const child = await prisma.child.findUnique({ where: { id: parseInt(childId) } });
     if (!child) {
       return res.status(404).json({ success: false, message: 'Child not found' });
     }
 
-    // Save the assessment record
     const assessment = await prisma.assessment.create({
-      data: { childId, score, level },
+      data: { childId: parseInt(childId), score, level },
     });
 
-    // Only unlock the next level if the child passed
     let levelUnlocked = false;
     if (score >= PASS_SCORE) {
       const nextLevel = level + 1;
-      // Only advance if next level is actually higher than what is already allowed
       if (nextLevel > child.allowedLevel) {
         await prisma.child.update({
-          where: { id: childId },
+          where: { id: parseInt(childId) },
           data: { allowedLevel: nextLevel },
         });
         levelUnlocked = true;
@@ -66,7 +69,6 @@ const { score, level } = req.body;
   }
 };
 
-// Get all assessments for a child (used by parent dashboard)
 const getChildAssessments = async (req, res) => {
   try {
     const childId = +req.params.childId;
@@ -86,7 +88,6 @@ const getChildAssessments = async (req, res) => {
       data: assessments,
     });
   } catch (error) {
-    // Fixed: was two properties both named "message" — second overwrote the first
     res.status(500).json({
       success: false,
       message: 'Error in get assessments API',
@@ -95,7 +96,4 @@ const getChildAssessments = async (req, res) => {
   }
 };
 
-module.exports = {
-  submitAssessment,
-  getChildAssessments,
-};
+module.exports = { submitAssessment, getChildAssessments };
