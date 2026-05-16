@@ -3,13 +3,13 @@ const prisma = require('../prismaClient');
 const completeLesson = async (req, res) => {
   try {
     const childId = req.user?.id;
-    const lessonId = parseInt(req.body.lessonId); // ✅ parseInt
+    const lessonId = parseInt(req.body.lessonId);
 
     if (!childId) {
       return res.status(401).json({ success: false, message: 'Authentication required' });
     }
 
-    if (!lessonId || isNaN(lessonId)) { // ✅ تحقق من isNaN
+    if (!lessonId || isNaN(lessonId)) {
       return res.status(400).json({ success: false, message: 'lessonId is required' });
     }
 
