@@ -43,7 +43,7 @@ model Child {
 
 model Level {
   id          Int        @id @default(autoincrement())
-  levelNumber Int        @unique @map("level_number") // ← أضيفي السطر ده
+  levelNumber Int        @unique @map("level_number") 
   name        String     @db.VarChar(50)
   categories  Category[]
 
