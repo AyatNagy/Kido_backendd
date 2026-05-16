@@ -1,4 +1,4 @@
-# 🌟 Kido Backend
+# Kido Backend
 
 > RESTful API for **Kido** — a children's educational app that helps kids learn through interactive levels, assessments, and progress tracking. Built and deployed solo.
 
@@ -143,7 +143,7 @@ EMAIL_PASS="your_gmail_app_password"
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Local Setup
 
