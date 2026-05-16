@@ -210,7 +210,7 @@ Import it in Postman to test all endpoints immediately.
 
 ## 👩‍💻 Built By
 
-**Ayat Nagy** — Designed, built, and deployed this backend independently as part of the Kido graduation project.
+**Ayat Nagy** — Designed, built, and deployed this backend as part of the Kido graduation project.
 
 - GitHub: [@AyatNagy](https://github.com/AyatNagy)
 
