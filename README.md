@@ -1,6 +1,6 @@
 # Kido Backend
 
-> RESTful API for **Kido** — a children's educational app that helps kids learn through interactive levels, assessments, and progress tracking. Built and deployed solo.
+> RESTful API for **Kido** — a children's educational app that helps kids learn through interactive levels, assessments, and progress tracking. Built and deployed.
 
 [![Node.js](https://img.shields.io/badge/Node.js-18.x-green?logo=node.js)](https://nodejs.org)
 [![Prisma](https://img.shields.io/badge/Prisma-ORM-blue?logo=prisma)](https://prisma.io)
